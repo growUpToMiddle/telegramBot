@@ -18,6 +18,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation ("org.telegram:telegrambots:6.8.0")
 }
 
 tasks.withType<Test> {
