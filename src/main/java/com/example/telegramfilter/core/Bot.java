@@ -1,20 +1,34 @@
 package com.example.telegramfilter.core;
 
+import com.example.telegramfilter.TelegramFilterApplication;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
 
-    final private String BOT_TOKEN = "6720727438:AAFmtwmS6tc23xJeUVQ-yp9zsauGLw0EFl0";
-    final private String BOT_NAME = "@Omnisiabot";
-    ReplyKeyboardMarkup replyKeyboardMarkup;
+     private String BOT_TOKEN;
+     private String BOT_NAME;
 
+    public Bot() {
+        Properties properties = new Properties();
+        try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("application.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        BOT_TOKEN = properties.getProperty("bot.token");
+        BOT_NAME = properties.getProperty("bot.name");
+    }
     @Override
     public String getBotUsername() {
         return BOT_NAME;
