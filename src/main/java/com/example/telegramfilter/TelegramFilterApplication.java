@@ -1,6 +1,6 @@
 package com.example.telegramfilter;
 
-import com.example.telegramfilter.core.Bot;
+import com.example.telegramfilter.telegram.Bot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
