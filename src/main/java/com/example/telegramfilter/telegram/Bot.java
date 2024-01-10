@@ -73,9 +73,9 @@ public class Bot extends TelegramLongPollingBot {
     public String parseMessage(String textMsg) {
         String response = new String();
 
-        for (int i = 0; i < banwords.size(); i++) {
-            if (textMsg.toLowerCase().equals(banwords.get(i))) {
-                response = "Мы тут не любим -" + banwords.get(i) + " поаккуратней со словами";
+        for (String banword:banwords) {
+            if (textMsg.toLowerCase().contains(banword)) {
+                response = "Мы тут не любим -" + banwords + " поаккуратней со словами";
 
             }
         }
