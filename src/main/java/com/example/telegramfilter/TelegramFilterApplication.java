@@ -1,6 +1,5 @@
 package com.example.telegramfilter;
 
-import com.example.telegramfilter.telegram.Bot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -14,7 +13,7 @@ public class TelegramFilterApplication {
         SpringApplication.run(TelegramFilterApplication.class, args);
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot(new Bot());
+            telegramBotsApi.registerBot(new Bot(Bot.botName,Bot.BOT_TOKEN));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

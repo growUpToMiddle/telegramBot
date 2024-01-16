@@ -1,10 +1,5 @@
-package com.example.telegramfilter.telegram;
+package com.example.telegramfilter;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -19,15 +14,27 @@ import java.util.Properties;
 
 
 public class Bot extends TelegramLongPollingBot {
-    private final List<String> banwords = new ArrayList<>();
-@Value("${bot.token}")//?
-    private String BOT_TOKEN;
-@Value("${bot.name}")//?
-    private String BOT_NAME;
 
-    public Bot() {
-        BOT_NAME = "@Omnisiabot";
-        BOT_TOKEN = "6720727438:AAFmtwmS6tc23xJeUVQ-yp9zsauGLw0EFl0";
+    private final List<String> banwords = new ArrayList<>();
+
+    protected static final String BOT_TOKEN;
+    protected static String botName;
+
+    static {
+        Properties properties = new Properties();
+        try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("application.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BOT_TOKEN = properties.getProperty("bot.token");
+        botName = properties.getProperty("bot.name");
+    }
+
+    public Bot(String BOT_NAME, String BOT_TOKEN) {
+        super(BOT_TOKEN);
+        botName = BOT_NAME;
 
         banwords.add("horse");
         banwords.add("frog");
@@ -35,18 +42,12 @@ public class Bot extends TelegramLongPollingBot {
         banwords.add("cat");
         banwords.add("dog");
         banwords.add("pootin");
-
-        Properties properties = new Properties();
-        try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("application.properties")) {
-            properties.load(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
+
 
     @Override
     public String getBotUsername() {
-        return BOT_NAME;
+        return botName;
     }
 
     @Override
