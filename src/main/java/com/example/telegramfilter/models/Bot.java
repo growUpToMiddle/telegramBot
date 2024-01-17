@@ -1,5 +1,6 @@
-package com.example.telegramfilter;
+package com.example.telegramfilter.models;
 
+import com.example.telegramfilter.filters.BanWordsHandler;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,10 +16,12 @@ import java.util.Properties;
 
 public class Bot extends TelegramLongPollingBot {
 
-    private final List<String> banwords = new ArrayList<>();
+    public static String response;
+    protected final List<String> banwords = new ArrayList<>();
 
     protected static final String BOT_TOKEN;
     protected static String botName;
+    private HandlerChain handlerChain = new HandlerChain();
 
     static {
         Properties properties = new Properties();
@@ -50,10 +53,6 @@ public class Bot extends TelegramLongPollingBot {
         return botName;
     }
 
-    @Override
-    public String getBotToken() {
-        return BOT_TOKEN;
-    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -61,14 +60,14 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Message inMess = update.getMessage();
 
-            String chatId = inMess.getChatId().toString();
-            String response = parseMessage(inMess.getText());
+            String chatId = inMess.getChatId().toString();// get id
+            response = parseMessage(inMess.getText()); // work with 1rs filter (received String)
             SendMessage outMess = new SendMessage();
             outMess.setChatId(chatId);
             outMess.setText(response);
             try {
                 if (!response.isBlank()) {
-                    execute(outMess);
+                    execute(outMess); // - отсылает в чат
                 }
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
@@ -77,17 +76,10 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public String parseMessage(String textMsg) {
-        String response = new String();
-
-        for (String banword : banwords) {
-            if (textMsg.toLowerCase().contains(banword)) {
-                response = "Мы тут таких как \"" + banword.toUpperCase() + "\" не любим";
-
-            }
-        }
-        return response;
+        BanWordsHandler banWordsHandler = new BanWordsHandler();
+        handlerChain.addHandler(banWordsHandler);
+           return handlerChain.handleRequest(textMsg,banwords);
     }
-
 
     @Override
     public void onUpdatesReceived(List<Update> updates) {
