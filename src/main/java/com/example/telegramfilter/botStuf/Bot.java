@@ -1,6 +1,10 @@
-package com.example.telegramfilter.models;
+package com.example.telegramfilter.botStuf;
 
-import com.example.telegramfilter.filters.BanWordsHandler;
+import com.example.telegramfilter.models.Request;
+import com.example.telegramfilter.models.Response;
+import com.example.telegramfilter.service.FilterService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,32 +17,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-
+@Component
 public class Bot extends TelegramLongPollingBot {
 
     public static String response;
     protected final List<String> banwords = new ArrayList<>();
 
-    protected static final String BOT_TOKEN;
-    protected static String botName;
-    private HandlerChain handlerChain = new HandlerChain();
+    protected static String BOT_TOKEN ;
+    protected static String botName ;
 
-    static {
-        Properties properties = new Properties();
-        try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("application.properties")) {
-            properties.load(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+   private final FilterService filterService;
 
-        BOT_TOKEN = properties.getProperty("bot.token");
-        botName = properties.getProperty("bot.name");
+    @Autowired
+    public Bot(FilterService filterService) {
+        this.filterService = filterService;
+        initializeBanWords();
     }
 
-    public Bot(String BOT_NAME, String BOT_TOKEN) {
-        super(BOT_TOKEN);
-        botName = BOT_NAME;
-
+    private void initializeBanWords() {
         banwords.add("horse");
         banwords.add("frog");
         banwords.add("fox");
@@ -47,6 +43,17 @@ public class Bot extends TelegramLongPollingBot {
         banwords.add("pootin");
     }
 
+    public void setBotToken(String botToken) {
+        BOT_TOKEN = botToken;
+    }
+
+    public void setBotName(String botName) {
+        Bot.botName = botName;
+    }
+
+    public String getBotToken(){
+        return BOT_TOKEN;
+    }
 
     @Override
     public String getBotUsername() {
@@ -61,7 +68,7 @@ public class Bot extends TelegramLongPollingBot {
             Message inMess = update.getMessage();
 
             String chatId = inMess.getChatId().toString();// get id
-            response = parseMessage(inMess.getText()); // work with 1rs filter (received String)
+            response = String.valueOf(parseMessage(inMess.getText()).getMessage()); // work with 1rs filter (received String)
             SendMessage outMess = new SendMessage();
             outMess.setChatId(chatId);
             outMess.setText(response);
@@ -75,10 +82,10 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public String parseMessage(String textMsg) {
-        BanWordsHandler banWordsHandler = new BanWordsHandler();
-        handlerChain.addHandler(banWordsHandler);
-           return handlerChain.handleRequest(textMsg,banwords);
+    public Response parseMessage(String textMsg) {
+
+        Request request = new Request(textMsg);
+        return filterService.getResponse(request);
     }
 
     @Override

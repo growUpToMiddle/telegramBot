@@ -1,2 +1,3 @@
 filters:
-  - firstFilterHandler
+  listOfChains:
+    - FirstFilter
