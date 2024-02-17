@@ -19,8 +19,19 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation ("org.telegram:telegrambots:6.8.0")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework:spring-web:6.1.3")
+
+
+
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
 }
